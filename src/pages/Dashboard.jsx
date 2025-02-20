@@ -1,9 +1,13 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { Button } from "@/components/ui/button";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const Dashboard = () => {
     return (
-        <div>
-            Dashboard...
-        </div>
+        <SidebarProvider>
+            <AppSidebar />
+            
+        </SidebarProvider>
     );
 };
 
