@@ -1,5 +1,5 @@
-import { FaCirclePlus } from "react-icons/fa6";
-import { Button } from "./ui/button"; import {
+import { Button } from "@/components/ui/button"
+import {
     Dialog,
     DialogContent,
     DialogDescription,
@@ -9,16 +9,18 @@ import { Button } from "./ui/button"; import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@radix-ui/react-dropdown-menu";
+import { Label } from "@/components/ui/label"
+import useAuth from "@/hooks/useAuth";
+import useAxiosSecure from "@/hooks/useAxiosSecure";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import useAxiosSecure from "@/hooks/useAxiosSecure";
+import { CiEdit } from "react-icons/ci";
 import { toast } from "react-toastify";
-import useAuth from "@/hooks/useAuth";
-const AddTask = () => {
+
+export function UpdateTask({ event }) {
     const [time, setTime] = useState(new Date());
     const axiosSecure = useAxiosSecure();
-    const {user, refetch, todayDate} = useAuth();
+    const {refetch, todayDate} = useAuth();
     useEffect(() => {
         setInterval(() => setTime(new Date()), 1000);
     }, [])
@@ -30,20 +32,20 @@ const AddTask = () => {
 
 
     const onSubmit = (data) => {
-        data.status = data.date == todayDate? 'today' : 'upcoming';
-        data.userEmail = user.email;
-        axiosSecure.post('/to-do', data)
-        .then(res=>{
-            console.log(res.data)
-            refetch();
-            toast.success('task added.')
-        })
-        .catch(error=>console.log(error))
+        axiosSecure.patch(`/update-todo?id=${event._id}`, data)
+            .then(res => {
+                console.log(res.data);
+                if (res.data.modifiedCount) {
+                    refetch();
+                    toast.success('updated successfully.')
+                }
+            })
+            .catch(error => console.log(error))
     }
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline"> <FaCirclePlus />Add task</Button>
+                <button className={`px-2 cursor-pointer  ${ event.status === 'complete' ? 'hidden' : ''}`}><CiEdit /></button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -60,7 +62,7 @@ const AddTask = () => {
                         </Label>
                         <Input
                             id="name"
-                            defaultValue="Write your task title (max-50)"
+                            defaultValue={event.name}
                             className="col-span-3"
                             maxLength={50}
                             {...register("name")}
@@ -72,7 +74,7 @@ const AddTask = () => {
                         </Label>
                         <textarea
                             id="description"
-                            defaultValue="Enter description here (max-200)"
+                            defaultValue={event.description}
                             className="col-span-3 border rounded-md p-2"
                             rows="4"
                             maxLength={200}
@@ -89,17 +91,15 @@ const AddTask = () => {
                             rows="4"
                             maxLength={200}
                             type="date"
-                            defaultValue={todayDate}
+                            defaultValue={event.date}
                             {...register("date")}
                         />
                     </div>
                     <DialogFooter>
-                        <Button type="submit">Save</Button>
+                        <Button type="submit">Save Changes</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
     )
 }
-
-export default AddTask;
