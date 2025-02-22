@@ -18,6 +18,17 @@ const ToDoLIst = ({ event }) => {
             })
             .catch(error => console.log(error.message))
     }
+    const handleDone = (id) => {
+        axiosSecure.patch(`/update-todo?id=${event._id}`, {status:'complete'})
+            .then(res => {
+                console.log(res.data);
+                if (res.data.modifiedCount) {
+                    refetch();
+                    toast.success('Task completed successfully.')
+                }
+            })
+            .catch(error => console.log(error))
+    }
     const time = new Date();
     const todayDate = time.toISOString().split("T")[0];
     console.log();
@@ -33,7 +44,7 @@ const ToDoLIst = ({ event }) => {
                     <MdOutlineDeleteSweep />
                 </button>
                 <button
-                    className={`px-2 cursor-pointer ${event.date > todayDate || event.status === 'complete' ? 'hidden' : ''}`} onClick={() => handleDelete(event._id)}
+                    className={`px-2 cursor-pointer ${event.date > todayDate || event.status === 'complete' ? 'hidden' : ''}`} onClick={() => handleDone(event._id)}
                 >
                     <IoCheckmarkDoneCircleOutline />
                 </button>
